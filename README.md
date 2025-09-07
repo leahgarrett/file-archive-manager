@@ -10,9 +10,17 @@ It helps you keep your photos safe, searchable, and easy to browse — while you
 **Date Management:**
 
 - Photos store three ISO 8601 timestamp fields: `dateTaken`, `dateAdded`, `dateModified`
+- **Date precision tracking**: `dateTakenPrecision` field indicates confidence level
+  - `'exact'`: From EXIF data or known exact time
+  - `'day'`: Know the exact day but not the time
+  - `'month'`: Know month and year but not day
+  - `'year'`: Only know the year
+  - `'decade'`: Best guess within a decade (e.g., "1980s")
+  - `'unknown'`: Complete guess/placeholder
 - Easy searching by date range or year with string comparison
-- User-friendly date formatting with timezone awareness
+- User-friendly date formatting with precision indicators (e.g., "1985 (est.)", "1980s (est.)")
 - Chronological sorting capabilities
+- Helper functions for creating estimated dates
 
 _(more features to be added as the project develops)_
 
@@ -66,6 +74,29 @@ _(more features to be added as the project develops)_
 
 **Utility Functions Created:**
 
+**Utility Functions Created:**
+
 - `findByDateRange()`, `findByYear()` - Search by date
-- `formatDateForDisplay()` - Locale-aware formatting
+- `formatDateForDisplay()` - Locale-aware formatting with precision indicators
 - `sortByDateTaken()` - Chronological sorting
+- `createEstimatedDate()`, `createDecadeEstimate()` - Generate estimated dates
+- `filterByPrecision()` - Filter photos by date confidence level
+
+### Date Precision Enhancement (2025-09-07)
+
+**Question:** "If we are adding old photos we may not have the data (or even year) the photo was taken. How can we indicate that the datetaken is an estimate?"
+
+**Solution:** Added `DatePrecision` type and `dateTakenPrecision` field
+**Approach:**
+
+- Added 6 precision levels: `exact`, `day`, `month`, `year`, `decade`, `unknown`
+- Enhanced display formatting to show estimation indicators
+- Maintained ISO 8601 date format for consistency and searchability
+- Created helper functions for generating reasonable estimated dates (mid-year, mid-decade defaults)
+
+**Benefits:**
+
+- ✅ Clear indication of date reliability in UI
+- ✅ Maintains searchable date format
+- ✅ Graceful handling of incomplete information
+- ✅ Future-proof for AI-assisted date estimation

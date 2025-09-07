@@ -8,6 +8,14 @@ export type Location = {
   longitude?: number;
 };
 
+export type DatePrecision =
+  | 'exact' // From EXIF data or known exact time
+  | 'day' // Know the exact day but not time
+  | 'month' // Know month and year but not day
+  | 'year' // Only know the year
+  | 'decade' // Best guess within a decade (e.g., "1980s")
+  | 'unknown'; // Complete guess/placeholder
+
 export type Photo = {
   id: string;
   filename: string;
@@ -17,6 +25,7 @@ export type Photo = {
   people: string[];
   location: Location;
   dateTaken: string; // ISO 8601 format: "2023-12-25T10:30:00.000Z"
+  dateTakenPrecision: DatePrecision; // How accurate is dateTaken?
   dateAdded: string; // ISO 8601 format: when added to archive
   dateModified: string; // ISO 8601 format: when metadata last updated
 };
@@ -58,12 +67,63 @@ export function findByYear(year: number): Photo[] {
   return findByDateRange(startDate, endDate);
 }
 
-export function formatDateForDisplay(isoDateString: string): string {
-  return new Date(isoDateString).toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
+export function formatDateForDisplay(
+  isoDateString: string,
+  precision: DatePrecision = 'exact',
+): string {
+  const date = new Date(isoDateString);
+
+  switch (precision) {
+    case 'exact':
+      return date.toLocaleDateString(undefined, {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+    case 'day':
+      return (
+        date.toLocaleDateString(undefined, {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        }) + ' (day known)'
+      );
+    case 'month':
+      return (
+        date.toLocaleDateString(undefined, {
+          year: 'numeric',
+          month: 'long',
+        }) + ' (est.)'
+      );
+    case 'year':
+      return date.getFullYear().toString() + ' (est.)';
+    case 'decade':
+      const decade = Math.floor(date.getFullYear() / 10) * 10;
+      return `${decade}s (est.)`;
+    case 'unknown':
+      return 'Date unknown';
+    default:
+      return date.toLocaleDateString(undefined, {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+  }
+}
+
+export function createEstimatedDate(year: number, month = 6, day = 15): string {
+  // Use mid-year, mid-month defaults for estimated dates
+  return new Date(Date.UTC(year, month - 1, day, 12, 0, 0)).toISOString();
+}
+
+export function createDecadeEstimate(decade: number): string {
+  // Use middle of decade (e.g., 1985 for "1980s")
+  return createEstimatedDate(decade + 5);
+}
+
+export function filterByPrecision(precision: DatePrecision | DatePrecision[]): Photo[] {
+  const precisions = Array.isArray(precision) ? precision : [precision];
+  return photos.filter((photo) => precisions.includes(photo.dateTakenPrecision));
 }
 
 export function sortByDateTaken(photos: Photo[], descending = true): Photo[] {

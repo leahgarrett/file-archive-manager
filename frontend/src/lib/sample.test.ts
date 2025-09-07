@@ -5,6 +5,10 @@ import {
   findByDateRange,
   formatDateForDisplay,
   sortByDateTaken,
+  createEstimatedDate,
+  createDecadeEstimate,
+  filterByPrecision,
+  type DatePrecision,
 } from './sample';
 
 describe('sample data', () => {
@@ -35,6 +39,48 @@ describe('sample data', () => {
     const formatted = formatDateForDisplay('2023-12-25T16:45:00.000Z');
     // Allow for timezone differences - just check that it's a properly formatted date in December 2023
     expect(formatted).toMatch(/(December|Dec) (24|25|26), 2023|(24|25|26) (December|Dec) 2023/);
+  });
+
+  it('formats dates with precision indicators', () => {
+    const exactDate = formatDateForDisplay('2023-12-25T16:45:00.000Z', 'exact');
+    const dayKnown = formatDateForDisplay('2023-12-25T16:45:00.000Z', 'day');
+    const monthEst = formatDateForDisplay('2023-12-25T16:45:00.000Z', 'month');
+    const yearEst = formatDateForDisplay('2023-12-25T16:45:00.000Z', 'year');
+    const decadeEst = formatDateForDisplay('1985-12-25T16:45:00.000Z', 'decade');
+    const unknown = formatDateForDisplay('2023-12-25T16:45:00.000Z', 'unknown');
+
+    expect(dayKnown).toContain('(day known)');
+    expect(monthEst).toContain('(est.)');
+    expect(yearEst).toMatch(/2023 \(est\.\)/);
+    expect(decadeEst).toMatch(/1980s \(est\.\)/);
+    expect(unknown).toBe('Date unknown');
+  });
+
+  it('creates estimated dates', () => {
+    const date1985 = createEstimatedDate(1985);
+    expect(date1985).toMatch(/^1985-06-15T12:00:00\.000Z$/);
+
+    const dateCustom = createEstimatedDate(2020, 3, 10);
+    expect(dateCustom).toMatch(/^2020-03-10T12:00:00\.000Z$/);
+  });
+
+  it('creates decade estimates', () => {
+    const eighties = createDecadeEstimate(1980);
+    expect(eighties).toMatch(/^1985-06-15T12:00:00\.000Z$/);
+  });
+
+  it('filters by date precision', () => {
+    const exactPhotos = filterByPrecision('exact');
+    const estimatedPhotos = filterByPrecision(['decade', 'year']);
+
+    expect(exactPhotos.length).toBeGreaterThan(0);
+    exactPhotos.forEach((photo) => {
+      expect(photo.dateTakenPrecision).toBe('exact');
+    });
+
+    estimatedPhotos.forEach((photo) => {
+      expect(['decade', 'year']).toContain(photo.dateTakenPrecision);
+    });
   });
 
   it('sorts photos by date taken', () => {

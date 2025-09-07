@@ -16,6 +16,7 @@
       "longitude": -118.4912
     },
     "dateTaken": "2023-07-15T14:30:00.000Z",
+    "dateTakenPrecision": "exact",
     "dateAdded": "2023-08-01T09:15:00.000Z",
     "dateModified": "2023-08-01T09:15:00.000Z"
   },
@@ -36,6 +37,7 @@
       "longitude": -104.9903
     },
     "dateTaken": "2023-12-25T16:45:00.000Z",
+    "dateTakenPrecision": "day",
     "dateAdded": "2023-12-26T10:30:00.000Z",
     "dateModified": "2023-12-26T10:30:00.000Z"
   },
@@ -56,6 +58,7 @@
       "longitude": -119.5383
     },
     "dateTaken": "2023-09-03T11:20:00.000Z",
+    "dateTakenPrecision": "exact",
     "dateAdded": "2023-09-10T19:45:00.000Z",
     "dateModified": "2023-09-10T19:45:00.000Z"
   },
@@ -76,7 +79,8 @@
     },
     "dateTaken": "2023-06-10T08:15:00.000Z",
     "dateAdded": "2023-06-10T20:30:00.000Z",
-    "dateModified": "2023-06-10T20:30:00.000Z"
+    "dateModified": "2023-06-10T20:30:00.000Z",
+    "dateTakenPrecision": "exact"
   },
   {
     "id": "5",
@@ -95,7 +99,8 @@
     },
     "dateTaken": "2023-11-15T13:45:00.000Z",
     "dateAdded": "2023-11-16T09:20:00.000Z",
-    "dateModified": "2023-11-16T09:20:00.000Z"
+    "dateModified": "2023-11-16T09:20:00.000Z",
+    "dateTakenPrecision": "exact"
   },
   {
     "id": "6",
@@ -115,7 +120,8 @@
     },
     "dateTaken": "2024-01-03T12:00:00.000Z",
     "dateAdded": "2024-01-03T18:45:00.000Z",
-    "dateModified": "2024-01-03T18:45:00.000Z"
+    "dateModified": "2024-01-03T18:45:00.000Z",
+    "dateTakenPrecision": "exact"
   },
   {
     "id": "7",
@@ -130,7 +136,8 @@
       "state": "New York",
       "country": "USA"
     },
-    "dateTaken": "2024-02-14T17:30:00.000Z",
+    "dateTaken": "1985-12-15T12:00:00.000Z",
+    "dateTakenPrecision": "decade",
     "dateAdded": "2024-02-15T10:15:00.000Z",
     "dateModified": "2024-02-15T10:15:00.000Z"
   },
@@ -147,7 +154,8 @@
       "state": "Florida",
       "country": "USA"
     },
-    "dateTaken": "2023-08-20T19:45:00.000Z",
+    "dateTaken": "1965-07-15T12:00:00.000Z",
+    "dateTakenPrecision": "year",
     "dateAdded": "2023-08-21T11:30:00.000Z",
     "dateModified": "2023-08-21T11:30:00.000Z"
   }
