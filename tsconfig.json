@@ -10,10 +10,10 @@
     "skipLibCheck": true,
     "incremental": true,
     "outDir": "dist",
-    "rootDir": "src",
+    "rootDir": ".",
     "resolveJsonModule": true,
     "isolatedModules": true
   },
-  "include": ["src/**/*"],
+  "include": ["frontend/src/**/*", "backend/src/**/*"],
   "exclude": ["node_modules", "dist"]
 }

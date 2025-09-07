@@ -4,8 +4,6 @@
   "private": true,
   "scripts": {
     "type-check": "tsc --project tsconfig.json --noEmit",
-    "lint": "eslint 'src/**/*.{ts,tsx}' --max-warnings=0",
-    "format": "prettier --write \"src/**/*.{ts,tsx,json,md}\"",
     "test": "vitest"
   }
 }

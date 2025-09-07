@@ -1,0 +1,10 @@
+# Ignore build and dependency folders but keep src directories
+node_modules/
+dist/
+.next/
+out/
+coverage/
+
+# Explicitly allow package src directories (ESLint will still lint these)
+!frontend/src/**
+!backend/src/**

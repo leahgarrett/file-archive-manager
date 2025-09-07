@@ -1,0 +1,16 @@
+[
+  {
+    "id": "1",
+    "filename": "IMG_0001.jpg",
+    "tags": ["vacation", "beach"],
+    "width": 4000,
+    "height": 3000
+  },
+  {
+    "id": "2",
+    "filename": "IMG_0002.jpg",
+    "tags": ["family", "holiday"],
+    "width": 3264,
+    "height": 2448
+  }
+]
