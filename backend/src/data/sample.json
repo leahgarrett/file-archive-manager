@@ -14,7 +14,10 @@
       "country": "USA",
       "latitude": 34.0195,
       "longitude": -118.4912
-    }
+    },
+    "dateTaken": "2023-07-15T14:30:00.000Z",
+    "dateAdded": "2023-08-01T09:15:00.000Z",
+    "dateModified": "2023-08-01T09:15:00.000Z"
   },
   {
     "id": "2",
@@ -31,7 +34,10 @@
       "country": "USA",
       "latitude": 39.7392,
       "longitude": -104.9903
-    }
+    },
+    "dateTaken": "2023-12-25T16:45:00.000Z",
+    "dateAdded": "2023-12-26T10:30:00.000Z",
+    "dateModified": "2023-12-26T10:30:00.000Z"
   },
   {
     "id": "3",
@@ -48,7 +54,10 @@
       "country": "USA",
       "latitude": 37.8651,
       "longitude": -119.5383
-    }
+    },
+    "dateTaken": "2023-09-03T11:20:00.000Z",
+    "dateAdded": "2023-09-10T19:45:00.000Z",
+    "dateModified": "2023-09-10T19:45:00.000Z"
   },
   {
     "id": "4",
@@ -64,7 +73,10 @@
       "country": "USA",
       "latitude": 40.6782,
       "longitude": -73.9442
-    }
+    },
+    "dateTaken": "2023-06-10T08:15:00.000Z",
+    "dateAdded": "2023-06-10T20:30:00.000Z",
+    "dateModified": "2023-06-10T20:30:00.000Z"
   },
   {
     "id": "5",
@@ -80,7 +92,10 @@
       "country": "USA",
       "latitude": 47.6062,
       "longitude": -122.3321
-    }
+    },
+    "dateTaken": "2023-11-15T13:45:00.000Z",
+    "dateAdded": "2023-11-16T09:20:00.000Z",
+    "dateModified": "2023-11-16T09:20:00.000Z"
   },
   {
     "id": "6",
@@ -97,7 +112,10 @@
       "country": "USA",
       "latitude": 45.5152,
       "longitude": -122.6784
-    }
+    },
+    "dateTaken": "2024-01-03T12:00:00.000Z",
+    "dateAdded": "2024-01-03T18:45:00.000Z",
+    "dateModified": "2024-01-03T18:45:00.000Z"
   },
   {
     "id": "7",
@@ -111,7 +129,10 @@
       "city": "New York City",
       "state": "New York",
       "country": "USA"
-    }
+    },
+    "dateTaken": "2024-02-14T17:30:00.000Z",
+    "dateAdded": "2024-02-15T10:15:00.000Z",
+    "dateModified": "2024-02-15T10:15:00.000Z"
   },
   {
     "id": "8",
@@ -125,6 +146,9 @@
       "city": "Miami Beach",
       "state": "Florida",
       "country": "USA"
-    }
+    },
+    "dateTaken": "2023-08-20T19:45:00.000Z",
+    "dateAdded": "2023-08-21T11:30:00.000Z",
+    "dateModified": "2023-08-21T11:30:00.000Z"
   }
 ]

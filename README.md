@@ -7,7 +7,14 @@ It helps you keep your photos safe, searchable, and easy to browse — while you
 
 ## Features
 
-_(to be added as the project develops)_
+**Date Management:**
+
+- Photos store three ISO 8601 timestamp fields: `dateTaken`, `dateAdded`, `dateModified`
+- Easy searching by date range or year with string comparison
+- User-friendly date formatting with timezone awareness
+- Chronological sorting capabilities
+
+_(more features to be added as the project develops)_
 
 ---
 
@@ -37,3 +44,28 @@ _(to be added as the project develops)_
 ---
 
 ## Log of co-pilot instructions
+
+### Date Format Decision (2025-09-07)
+
+**Question:** "What dates would you receommend we store and what forat? We want easy searching and good user readability"
+
+**Decision:** Store dates as ISO 8601 strings (`YYYY-MM-DDTHH:mm:ss.sssZ`)
+**Rationale:**
+
+- ✅ Easy searching: String comparison works for date ranges
+- ✅ User readable: Human-interpretable format
+- ✅ TypeScript/JSON native compatibility
+- ✅ Timezone aware (UTC timestamps)
+- ✅ Sortable: Lexicographic = chronological order
+
+**Date Fields Added:**
+
+- `dateTaken`: When photo was captured (primary for user UX)
+- `dateAdded`: When added to archive (import tracking)
+- `dateModified`: When metadata last updated (sync/backup)
+
+**Utility Functions Created:**
+
+- `findByDateRange()`, `findByYear()` - Search by date
+- `formatDateForDisplay()` - Locale-aware formatting
+- `sortByDateTaken()` - Chronological sorting

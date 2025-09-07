@@ -16,6 +16,9 @@ export type Photo = {
   height: number;
   people: string[];
   location: Location;
+  dateTaken: string; // ISO 8601 format: "2023-12-25T10:30:00.000Z"
+  dateAdded: string; // ISO 8601 format: when added to archive
+  dateModified: string; // ISO 8601 format: when metadata last updated
 };
 
 let photos: Photo[] = [];
@@ -43,4 +46,30 @@ export async function loadPhotos(): Promise<void> {
 
 export function findByTag(tag: string): Photo[] {
   return photos.filter((p) => p.tags.includes(tag));
+}
+
+export function findByDateRange(startDate: string, endDate: string): Photo[] {
+  return photos.filter((photo) => photo.dateTaken >= startDate && photo.dateTaken <= endDate);
+}
+
+export function findByYear(year: number): Photo[] {
+  const startDate = `${year}-01-01T00:00:00.000Z`;
+  const endDate = `${year}-12-31T23:59:59.999Z`;
+  return findByDateRange(startDate, endDate);
+}
+
+export function formatDateForDisplay(isoDateString: string): string {
+  return new Date(isoDateString).toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+}
+
+export function sortByDateTaken(photos: Photo[], descending = true): Photo[] {
+  return [...photos].sort((a, b) => {
+    return descending
+      ? b.dateTaken.localeCompare(a.dateTaken)
+      : a.dateTaken.localeCompare(b.dateTaken);
+  });
 }
