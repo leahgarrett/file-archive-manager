@@ -1,0 +1,23 @@
+{
+  "name": "photo-archive-manager",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=16"
+  },
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "type-check": "npm --workspaces run type-check",
+    "lint": "npm --workspaces run lint",
+    "format": "npm --workspaces run format",
+    "test": "npm --workspaces run test",
+    "precommit": "lint-staged",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "husky": "^8.0.0"
+  }
+}
