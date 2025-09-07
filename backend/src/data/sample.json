@@ -1,16 +1,130 @@
 [
   {
     "id": "1",
-    "filename": "IMG_0001.jpg",
+    "filename": "IMG_1998.jpeg",
     "tags": ["vacation", "beach"],
     "width": 4000,
-    "height": 3000
+    "height": 3000,
+    "people": ["Sarah", "Mike"],
+    "location": {
+      "title": "Our Favorite Beach",
+      "address": "Santa Monica Beach, CA",
+      "city": "Santa Monica",
+      "state": "California",
+      "country": "USA",
+      "latitude": 34.0195,
+      "longitude": -118.4912
+    }
   },
   {
     "id": "2",
-    "filename": "IMG_0002.jpg",
+    "filename": "IMG_2119.jpeg",
     "tags": ["family", "holiday"],
     "width": 3264,
-    "height": 2448
+    "height": 2448,
+    "people": ["Mom", "Dad", "Emma"],
+    "location": {
+      "title": "Grandma's House",
+      "address": "Grandma's House, Denver",
+      "city": "Denver",
+      "state": "Colorado",
+      "country": "USA",
+      "latitude": 39.7392,
+      "longitude": -104.9903
+    }
+  },
+  {
+    "id": "3",
+    "filename": "IMG_2256.jpeg",
+    "tags": ["nature", "hiking"],
+    "width": 4032,
+    "height": 3024,
+    "people": [],
+    "location": {
+      "title": "Yosemite Adventure",
+      "address": "Yosemite National Park, CA",
+      "city": "Yosemite Valley",
+      "state": "California",
+      "country": "USA",
+      "latitude": 37.8651,
+      "longitude": -119.5383
+    }
+  },
+  {
+    "id": "4",
+    "filename": "IMG_7216.JPG",
+    "tags": ["friends", "party"],
+    "width": 3000,
+    "height": 4000,
+    "people": ["Alex", "Jordan", "Taylor", "Casey"],
+    "location": {
+      "title": "Alex's Birthday Party",
+      "city": "Brooklyn",
+      "state": "New York",
+      "country": "USA",
+      "latitude": 40.6782,
+      "longitude": -73.9442
+    }
+  },
+  {
+    "id": "5",
+    "filename": "chatgpt-people-city-rain.png",
+    "tags": ["city", "rain", "street"],
+    "width": 1024,
+    "height": 1024,
+    "people": ["Unknown pedestrians"],
+    "location": {
+      "title": "Rainy Day Downtown",
+      "city": "Seattle",
+      "state": "Washington",
+      "country": "USA",
+      "latitude": 47.6062,
+      "longitude": -122.3321
+    }
+  },
+  {
+    "id": "6",
+    "filename": "chatgpt-people-laughing.png",
+    "tags": ["friends", "laughter", "happy"],
+    "width": 1024,
+    "height": 1024,
+    "people": ["Anna", "Ben", "Chris"],
+    "location": {
+      "title": "Our Usual Spot",
+      "address": "Coffee Shop, Portland",
+      "city": "Portland",
+      "state": "Oregon",
+      "country": "USA",
+      "latitude": 45.5152,
+      "longitude": -122.6784
+    }
+  },
+  {
+    "id": "7",
+    "filename": "midjourney_a_holiday_photo_taken_in_the_1980s_with_a_city_street_c93a36c9-990f-4512-9c72-03022f46acfa.png",
+    "tags": ["vintage", "1980s", "city", "holiday"],
+    "width": 1456,
+    "height": 816,
+    "people": ["Retro family"],
+    "location": {
+      "title": "80s Street Scene",
+      "city": "New York City",
+      "state": "New York",
+      "country": "USA"
+    }
+  },
+  {
+    "id": "8",
+    "filename": "midjourney_a_holiday_photo_that_looks_like_it_was_taken_in_the_196_01ca069a-ceda-4e0b-81ad-1e0f3a8b7251.png",
+    "tags": ["vintage", "1960s", "holiday", "sepia"],
+    "width": 1456,
+    "height": 816,
+    "people": ["Vintage couple"],
+    "location": {
+      "title": "Holiday Resort Memories",
+      "city": "Miami Beach",
+      "state": "Florida",
+      "country": "USA"
+    }
   }
 ]

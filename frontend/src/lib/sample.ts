@@ -1,9 +1,21 @@
+export type Location = {
+  title: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  latitude?: number;
+  longitude?: number;
+};
+
 export type Photo = {
   id: string;
   filename: string;
   tags: string[];
   width: number;
   height: number;
+  people: string[];
+  location: Location;
 };
 
 let photos: Photo[] = [];
