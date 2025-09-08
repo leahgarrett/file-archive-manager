@@ -171,8 +171,6 @@ export function getImageUrl(photo: Photo): string {
 
 // Get thumbnail URL
 export function getThumbnailUrl(photo: Photo): string {
-  // Generate a smaller thumbnail
-  const thumbWidth = Math.min(400, photo.width);
-  const thumbHeight = Math.round((thumbWidth / photo.width) * photo.height);
-  return `https://picsum.photos/${thumbWidth}/${thumbHeight}?random=${photo.id}`;
+  // Use the actual image from the backend
+  return `/api/images/${photo.filename}`;
 }

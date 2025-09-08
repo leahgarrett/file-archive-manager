@@ -6,6 +6,10 @@ import { Photo, DatePrecision, Location } from './types/photo';
 const app = express();
 app.use(express.json());
 
+// Serve static image files
+const IMAGES_PATH = path.resolve(__dirname, './data/test-images');
+app.use('/api/images', express.static(IMAGES_PATH));
+
 const DATA_PATH = path.resolve(__dirname, './data/sample.json');
 
 // Helper function to load photos from JSON
