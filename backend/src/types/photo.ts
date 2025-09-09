@@ -16,6 +16,71 @@ export type DatePrecision =
   | 'decade' // Best guess within a decade (e.g., "1980s")
   | 'unknown'; // Complete guess/placeholder
 
+// Raw metadata structure for storing all extracted metadata
+export type Metadata = {
+  // EXIF data (camera/device information)
+  exif?: {
+    [key: string]: any; // Raw EXIF data
+  };
+  // File system information
+  file?: {
+    size?: number;
+    created?: string;
+    modified?: string;
+    format?: string;
+    mimeType?: string;
+  };
+  // Technical specifications
+  technical?: {
+    colorSpace?: string;
+    orientation?: number;
+    resolution?: {
+      x?: number;
+      y?: number;
+      unit?: string;
+    };
+    compression?: string;
+    bitDepth?: number;
+  };
+  // GPS and location data
+  gps?: {
+    latitude?: number;
+    longitude?: number;
+    altitude?: number;
+    direction?: number;
+    timestamp?: string;
+  };
+  // Camera settings
+  camera?: {
+    make?: string;
+    model?: string;
+    software?: string;
+    lens?: string;
+    focalLength?: number;
+    aperture?: number;
+    shutterSpeed?: string;
+    iso?: number;
+    flash?: boolean;
+    whiteBalance?: string;
+    exposureMode?: string;
+    meteringMode?: string;
+  };
+  // Timestamps from various sources
+  timestamps?: {
+    dateTimeOriginal?: string;
+    dateTime?: string;
+    createDate?: string;
+    modifyDate?: string;
+    digitized?: string;
+  };
+  // Processing information
+  processing?: {
+    extractedAt?: string; // When we extracted this metadata
+    extractorVersion?: string; // Version of extraction tool
+    source?: string; // Where metadata came from (EXIF, filename, etc.)
+  };
+};
+
 export type Photo = {
   id: string;
   filename: string;
@@ -28,4 +93,5 @@ export type Photo = {
   dateTakenPrecision: DatePrecision; // How accurate is dateTaken?
   dateAdded: string; // ISO 8601 format: when added to archive
   dateModified: string; // ISO 8601 format: when metadata last updated
+  metadata?: Metadata; // Raw metadata storage
 };

@@ -1,7 +1,8 @@
 import express from 'express';
 import path from 'path';
 import fs from 'fs/promises';
-import { Photo, DatePrecision, Location } from './types/photo';
+import { parse as parseExif } from 'exifr';
+import { Photo, DatePrecision, Location, Metadata } from './types/photo';
 
 const app = express();
 app.use(express.json());
@@ -30,6 +31,193 @@ async function savePhotos(photos: Photo[]): Promise<void> {
   await fs.rename(tmp, DATA_PATH);
 }
 
+// Helper function to determine date precision based on EXIF data
+function determineDatePrecision(exifData: any): DatePrecision {
+  if (exifData?.DateTime || exifData?.DateTimeOriginal || exifData?.CreateDate) {
+    return 'exact';
+  }
+  return 'unknown';
+}
+
+// Helper function to extract metadata from image file
+async function extractImageMetadata(imagePath: string, filename: string): Promise<Partial<Photo>> {
+  try {
+    // Parse EXIF data with comprehensive options
+    const exifData = await parseExif(imagePath, true); // true gets all available metadata
+
+    // Get file stats
+    const stats = await fs.stat(imagePath);
+
+    // Build comprehensive metadata structure
+    const metadata: Metadata = {
+      // Raw EXIF data
+      exif: exifData,
+
+      // File system information
+      file: {
+        size: stats.size,
+        created: stats.birthtime.toISOString(),
+        modified: stats.mtime.toISOString(),
+        format: path.extname(filename).toLowerCase(),
+        mimeType: getMimeType(filename),
+      },
+
+      // Technical specifications
+      technical: {
+        colorSpace: exifData?.ColorSpace,
+        orientation: exifData?.Orientation,
+        resolution: {
+          x: exifData?.XResolution,
+          y: exifData?.YResolution,
+          unit: exifData?.ResolutionUnit,
+        },
+        compression: exifData?.Compression,
+        bitDepth: exifData?.BitsPerSample,
+      },
+
+      // GPS and location data
+      gps:
+        exifData?.latitude && exifData?.longitude
+          ? {
+              latitude: exifData.latitude,
+              longitude: exifData.longitude,
+              altitude: exifData?.GPSAltitude,
+              direction: exifData?.GPSImgDirection,
+              timestamp: exifData?.GPSTimeStamp,
+            }
+          : undefined,
+
+      // Camera settings
+      camera: {
+        make: exifData?.Make,
+        model: exifData?.Model,
+        software: exifData?.Software,
+        lens: exifData?.LensModel || exifData?.LensMake,
+        focalLength: exifData?.FocalLength,
+        aperture: exifData?.FNumber || exifData?.ApertureValue,
+        shutterSpeed: exifData?.ExposureTime || exifData?.ShutterSpeedValue,
+        iso: exifData?.ISO || exifData?.ISOSpeedRatings,
+        flash: exifData?.Flash !== undefined ? Boolean(exifData.Flash) : undefined,
+        whiteBalance: exifData?.WhiteBalance,
+        exposureMode: exifData?.ExposureMode,
+        meteringMode: exifData?.MeteringMode,
+      },
+
+      // Timestamps from various sources
+      timestamps: {
+        dateTimeOriginal: exifData?.DateTimeOriginal,
+        dateTime: exifData?.DateTime,
+        createDate: exifData?.CreateDate,
+        modifyDate: exifData?.ModifyDate,
+        digitized: exifData?.DateTimeDigitized,
+      },
+
+      // Processing information
+      processing: {
+        extractedAt: new Date().toISOString(),
+        extractorVersion: '1.0.0',
+        source: 'exifr',
+      },
+    };
+
+    // Get image dimensions (exifr provides these)
+    const width = exifData?.ExifImageWidth || exifData?.ImageWidth || 0;
+    const height = exifData?.ExifImageHeight || exifData?.ImageHeight || 0;
+
+    // Extract date information
+    let dateTaken = new Date().toISOString();
+    let dateTakenPrecision: DatePrecision = 'unknown';
+
+    const dateOriginal = exifData?.DateTimeOriginal || exifData?.CreateDate || exifData?.DateTime;
+    if (dateOriginal) {
+      try {
+        // EXIF dates are usually in format "YYYY:MM:DD HH:MM:SS"
+        const dateStr = dateOriginal.toString().replace(/^(\d{4}):(\d{2}):(\d{2})/, '$1-$2-$3');
+        const parsedDate = new Date(dateStr);
+        if (!isNaN(parsedDate.getTime())) {
+          dateTaken = parsedDate.toISOString();
+          dateTakenPrecision = 'exact';
+        }
+      } catch (err) {
+        console.warn(`Failed to parse date for ${filename}:`, err);
+      }
+    }
+
+    // Extract GPS location data
+    const location: Location = {
+      title: 'Unknown Location',
+    };
+
+    if (exifData?.latitude && exifData?.longitude) {
+      location.latitude = exifData.latitude;
+      location.longitude = exifData.longitude;
+      location.title = `${exifData.latitude.toFixed(6)}, ${exifData.longitude.toFixed(6)}`;
+    }
+
+    // Extract camera/device information for tags
+    const tags: string[] = [];
+    if (exifData?.Make) tags.push(exifData.Make);
+    if (exifData?.Model) tags.push(exifData.Model);
+    if (exifData?.Software) tags.push(`Software: ${exifData.Software}`);
+
+    const now = new Date().toISOString();
+
+    return {
+      filename,
+      width,
+      height,
+      tags,
+      people: [], // No automatic people detection yet
+      location,
+      dateTaken,
+      dateTakenPrecision,
+      dateAdded: now,
+      dateModified: now,
+      metadata, // Include comprehensive metadata
+    };
+  } catch (err) {
+    console.error(`Failed to extract metadata for ${filename}:`, err);
+
+    // Return basic metadata even if EXIF extraction fails
+    const now = new Date().toISOString();
+    return {
+      filename,
+      width: 0,
+      height: 0,
+      tags: [],
+      people: [],
+      location: { title: 'Unknown Location' },
+      dateTaken: now,
+      dateTakenPrecision: 'unknown' as DatePrecision,
+      dateAdded: now,
+      dateModified: now,
+      metadata: {
+        processing: {
+          extractedAt: now,
+          extractorVersion: '1.0.0',
+          source: 'fallback',
+        },
+      },
+    };
+  }
+}
+
+// Helper function to get MIME type from filename
+function getMimeType(filename: string): string {
+  const ext = path.extname(filename).toLowerCase();
+  const mimeTypes: { [key: string]: string } = {
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.png': 'image/png',
+    '.gif': 'image/gif',
+    '.bmp': 'image/bmp',
+    '.webp': 'image/webp',
+    '.tiff': 'image/tiff',
+    '.tif': 'image/tiff',
+  };
+  return mimeTypes[ext] || 'application/octet-stream';
+}
+
 // Legacy endpoints (keep for backwards compatibility)
 app.get('/api/photos/data', async (_req, res) => {
   try {
@@ -54,6 +242,140 @@ app.post('/api/photos/data', async (req, res) => {
 });
 
 // New RESTful API endpoints
+// POST /api/photos/extract-metadata - Extract metadata from images and update JSON
+app.post('/api/photos/extract-metadata', async (req, res) => {
+  try {
+    const { filename } = req.body;
+
+    if (!filename) {
+      return res.status(400).json({ error: 'filename is required' });
+    }
+
+    const imagePath = path.join(IMAGES_PATH, filename);
+
+    // Check if image file exists
+    try {
+      await fs.access(imagePath);
+    } catch (err) {
+      return res.status(404).json({ error: `Image file ${filename} not found` });
+    }
+
+    // Extract metadata
+    const metadata = await extractImageMetadata(imagePath, filename);
+
+    // Load existing photos
+    const photos = await loadPhotos();
+
+    // Find existing photo or create new one
+    const existingPhotoIndex = photos.findIndex((p) => p.filename === filename);
+
+    if (existingPhotoIndex >= 0) {
+      // Update existing photo with extracted metadata
+      const existingPhoto = photos[existingPhotoIndex];
+      photos[existingPhotoIndex] = {
+        ...existingPhoto,
+        ...metadata,
+        id: existingPhoto.id, // Keep existing ID
+        dateModified: new Date().toISOString(), // Update modification time
+      };
+    } else {
+      // Create new photo entry
+      const { ...metadataWithoutId } = metadata;
+      const newPhoto: Photo = {
+        id: `img_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        ...(metadataWithoutId as Required<Pick<Photo, Exclude<keyof Photo, 'id'>>>),
+      };
+      photos.push(newPhoto);
+    }
+
+    // Save updated photos
+    await savePhotos(photos);
+
+    const updatedPhoto = photos.find((p) => p.filename === filename);
+    res.json({
+      success: true,
+      photo: updatedPhoto,
+      message: existingPhotoIndex >= 0 ? 'Photo metadata updated' : 'New photo created',
+    });
+  } catch (err) {
+    console.error('Metadata extraction error:', err);
+    res.status(500).json({ error: 'Failed to extract metadata' });
+  }
+});
+
+// POST /api/photos/extract-all-metadata - Extract metadata from all images in directory
+app.post('/api/photos/extract-all-metadata', async (req, res) => {
+  try {
+    // Get all image files in the directory
+    const files = await fs.readdir(IMAGES_PATH);
+    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp', '.tiff'];
+    const imageFiles = files.filter((file) =>
+      imageExtensions.some((ext) => file.toLowerCase().endsWith(ext)),
+    );
+
+    if (imageFiles.length === 0) {
+      return res.json({ success: true, message: 'No image files found', processed: [] });
+    }
+
+    // Load existing photos
+    const photos = await loadPhotos();
+    const processed: string[] = [];
+    const errors: { filename: string; error: string }[] = [];
+
+    // Process each image file
+    for (const filename of imageFiles) {
+      try {
+        const imagePath = path.join(IMAGES_PATH, filename);
+        const metadata = await extractImageMetadata(imagePath, filename);
+
+        // Find existing photo or create new one
+        const existingPhotoIndex = photos.findIndex((p) => p.filename === filename);
+
+        if (existingPhotoIndex >= 0) {
+          // Update existing photo with extracted metadata (preserve manual edits)
+          const existingPhoto = photos[existingPhotoIndex];
+          photos[existingPhotoIndex] = {
+            ...existingPhoto,
+            ...metadata,
+            id: existingPhoto.id,
+            // Preserve manually added tags and people
+            tags: [...new Set([...existingPhoto.tags, ...metadata.tags!])],
+            people: existingPhoto.people, // Keep existing people data
+            dateModified: new Date().toISOString(),
+          };
+        } else {
+          // Create new photo entry
+          const { ...metadataWithoutId } = metadata;
+          const newPhoto: Photo = {
+            id: `img_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            ...(metadataWithoutId as Required<Pick<Photo, Exclude<keyof Photo, 'id'>>>),
+          };
+          photos.push(newPhoto);
+        }
+
+        processed.push(filename);
+      } catch (err) {
+        console.error(`Failed to process ${filename}:`, err);
+        errors.push({ filename, error: (err as Error).message });
+      }
+    }
+
+    // Save updated photos
+    await savePhotos(photos);
+
+    res.json({
+      success: true,
+      message: `Processed ${processed.length} of ${imageFiles.length} images`,
+      processed,
+      errors: errors.length > 0 ? errors : undefined,
+      totalImages: imageFiles.length,
+    });
+  } catch (err) {
+    console.error('Batch metadata extraction error:', err);
+    res.status(500).json({ error: 'Failed to extract metadata from images' });
+  }
+});
+
 // GET /api/photos/search - Search photos by text
 app.get('/api/photos/search', async (req, res) => {
   try {
