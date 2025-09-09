@@ -375,3 +375,5 @@ curl -X POST http://localhost:3001/api/photos/extract-all-metadata \
 
 - 2025-09-08: "how do i make the images on the backend visible on the front end?" - Solution: Added Express static file serving for images directory and updated frontend image URLs
 - 2025-09-09: "can we add the meta data to a new structure called meta data and asve all the meta data found?" - Solution: Enhanced metadata extraction with comprehensive EXIF data storage in dedicated metadata structure
+- 2025-09-09: "I do not wish to save the following meta data MediaWhitePoint RedMatrixColumn..." - Solution: Added metadata filtering to exclude color profile and technical fields
+- 2025-09-09: "It looks like the tags in sample.json have been replaced with meta data" - Solution: Fixed metadata extraction logic to preserve meaningful tags instead of replacing them with camera metadata. Removed camera tag generation from extraction function since camera info is now properly stored in metadata.camera structure

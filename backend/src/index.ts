@@ -39,18 +39,47 @@ function determineDatePrecision(exifData: any): DatePrecision {
   return 'unknown';
 }
 
+// Helper function to filter unwanted EXIF metadata fields
+function filterExifData(exifData: any): any {
+  if (!exifData) return exifData;
+
+  // List of fields to exclude from metadata storage
+  const excludedFields = [
+    'MediaWhitePoint',
+    'RedMatrixColumn',
+    'GreenMatrixColumn',
+    'BlueMatrixColumn',
+    'RedTRC',
+    'ChromaticAdaptation',
+    'BlueTRC',
+    'GreenTRC',
+    'makerNote',
+  ];
+
+  // Create a copy of the EXIF data without excluded fields
+  const filtered = { ...exifData };
+  excludedFields.forEach((field) => {
+    delete filtered[field];
+  });
+
+  return filtered;
+}
+
 // Helper function to extract metadata from image file
 async function extractImageMetadata(imagePath: string, filename: string): Promise<Partial<Photo>> {
   try {
     // Parse EXIF data with comprehensive options
-    const exifData = await parseExif(imagePath, true); // true gets all available metadata
+    const rawExifData = await parseExif(imagePath, true); // true gets all available metadata
+
+    // Filter out unwanted metadata fields
+    const exifData = filterExifData(rawExifData);
 
     // Get file stats
     const stats = await fs.stat(imagePath);
 
     // Build comprehensive metadata structure
     const metadata: Metadata = {
-      // Raw EXIF data
+      // Raw EXIF data (filtered)
       exif: exifData,
 
       // File system information
@@ -64,52 +93,52 @@ async function extractImageMetadata(imagePath: string, filename: string): Promis
 
       // Technical specifications
       technical: {
-        colorSpace: exifData?.ColorSpace,
-        orientation: exifData?.Orientation,
+        colorSpace: rawExifData?.ColorSpace,
+        orientation: rawExifData?.Orientation,
         resolution: {
-          x: exifData?.XResolution,
-          y: exifData?.YResolution,
-          unit: exifData?.ResolutionUnit,
+          x: rawExifData?.XResolution,
+          y: rawExifData?.YResolution,
+          unit: rawExifData?.ResolutionUnit,
         },
-        compression: exifData?.Compression,
-        bitDepth: exifData?.BitsPerSample,
+        compression: rawExifData?.Compression,
+        bitDepth: rawExifData?.BitsPerSample,
       },
 
       // GPS and location data
       gps:
-        exifData?.latitude && exifData?.longitude
+        rawExifData?.latitude && rawExifData?.longitude
           ? {
-              latitude: exifData.latitude,
-              longitude: exifData.longitude,
-              altitude: exifData?.GPSAltitude,
-              direction: exifData?.GPSImgDirection,
-              timestamp: exifData?.GPSTimeStamp,
+              latitude: rawExifData.latitude,
+              longitude: rawExifData.longitude,
+              altitude: rawExifData?.GPSAltitude,
+              direction: rawExifData?.GPSImgDirection,
+              timestamp: rawExifData?.GPSTimeStamp,
             }
           : undefined,
 
       // Camera settings
       camera: {
-        make: exifData?.Make,
-        model: exifData?.Model,
-        software: exifData?.Software,
-        lens: exifData?.LensModel || exifData?.LensMake,
-        focalLength: exifData?.FocalLength,
-        aperture: exifData?.FNumber || exifData?.ApertureValue,
-        shutterSpeed: exifData?.ExposureTime || exifData?.ShutterSpeedValue,
-        iso: exifData?.ISO || exifData?.ISOSpeedRatings,
-        flash: exifData?.Flash !== undefined ? Boolean(exifData.Flash) : undefined,
-        whiteBalance: exifData?.WhiteBalance,
-        exposureMode: exifData?.ExposureMode,
-        meteringMode: exifData?.MeteringMode,
+        make: rawExifData?.Make,
+        model: rawExifData?.Model,
+        software: rawExifData?.Software,
+        lens: rawExifData?.LensModel || rawExifData?.LensMake,
+        focalLength: rawExifData?.FocalLength,
+        aperture: rawExifData?.FNumber || rawExifData?.ApertureValue,
+        shutterSpeed: rawExifData?.ExposureTime || rawExifData?.ShutterSpeedValue,
+        iso: rawExifData?.ISO || rawExifData?.ISOSpeedRatings,
+        flash: rawExifData?.Flash !== undefined ? Boolean(rawExifData.Flash) : undefined,
+        whiteBalance: rawExifData?.WhiteBalance,
+        exposureMode: rawExifData?.ExposureMode,
+        meteringMode: rawExifData?.MeteringMode,
       },
 
       // Timestamps from various sources
       timestamps: {
-        dateTimeOriginal: exifData?.DateTimeOriginal,
-        dateTime: exifData?.DateTime,
-        createDate: exifData?.CreateDate,
-        modifyDate: exifData?.ModifyDate,
-        digitized: exifData?.DateTimeDigitized,
+        dateTimeOriginal: rawExifData?.DateTimeOriginal,
+        dateTime: rawExifData?.DateTime,
+        createDate: rawExifData?.CreateDate,
+        modifyDate: rawExifData?.ModifyDate,
+        digitized: rawExifData?.DateTimeDigitized,
       },
 
       // Processing information
@@ -121,14 +150,15 @@ async function extractImageMetadata(imagePath: string, filename: string): Promis
     };
 
     // Get image dimensions (exifr provides these)
-    const width = exifData?.ExifImageWidth || exifData?.ImageWidth || 0;
-    const height = exifData?.ExifImageHeight || exifData?.ImageHeight || 0;
+    const width = rawExifData?.ExifImageWidth || rawExifData?.ImageWidth || 0;
+    const height = rawExifData?.ExifImageHeight || rawExifData?.ImageHeight || 0;
 
     // Extract date information
     let dateTaken = new Date().toISOString();
     let dateTakenPrecision: DatePrecision = 'unknown';
 
-    const dateOriginal = exifData?.DateTimeOriginal || exifData?.CreateDate || exifData?.DateTime;
+    const dateOriginal =
+      rawExifData?.DateTimeOriginal || rawExifData?.CreateDate || rawExifData?.DateTime;
     if (dateOriginal) {
       try {
         // EXIF dates are usually in format "YYYY:MM:DD HH:MM:SS"
@@ -148,17 +178,15 @@ async function extractImageMetadata(imagePath: string, filename: string): Promis
       title: 'Unknown Location',
     };
 
-    if (exifData?.latitude && exifData?.longitude) {
-      location.latitude = exifData.latitude;
-      location.longitude = exifData.longitude;
-      location.title = `${exifData.latitude.toFixed(6)}, ${exifData.longitude.toFixed(6)}`;
+    if (rawExifData?.latitude && rawExifData?.longitude) {
+      location.latitude = rawExifData.latitude;
+      location.longitude = rawExifData.longitude;
+      location.title = `${rawExifData.latitude.toFixed(6)}, ${rawExifData.longitude.toFixed(6)}`;
     }
 
-    // Extract camera/device information for tags
-    const tags: string[] = [];
-    if (exifData?.Make) tags.push(exifData.Make);
-    if (exifData?.Model) tags.push(exifData.Model);
-    if (exifData?.Software) tags.push(`Software: ${exifData.Software}`);
+    // Extract camera/device information for tags - DISABLED to preserve meaningful tags
+    // Camera info is now stored in metadata.camera instead
+    const tags: string[] = []; // Start with empty tags, let meaningful tags be preserved
 
     const now = new Date().toISOString();
 
@@ -270,13 +298,39 @@ app.post('/api/photos/extract-metadata', async (req, res) => {
     const existingPhotoIndex = photos.findIndex((p) => p.filename === filename);
 
     if (existingPhotoIndex >= 0) {
-      // Update existing photo with extracted metadata
+      // Update existing photo with extracted metadata (preserve meaningful tags and people)
       const existingPhoto = photos[existingPhotoIndex];
+
+      // Preserve existing meaningful tags (not camera metadata)
+      const meaningfulTags = existingPhoto.tags.filter(
+        (tag) =>
+          !tag.includes('iPhone') &&
+          !tag.includes('Apple') &&
+          !tag.includes('Samsung') &&
+          !tag.includes('Canon') &&
+          !tag.includes('Nikon') &&
+          !tag.includes('Software:') &&
+          tag.length > 0,
+      );
+
       photos[existingPhotoIndex] = {
         ...existingPhoto,
-        ...metadata,
-        id: existingPhoto.id, // Keep existing ID
-        dateModified: new Date().toISOString(), // Update modification time
+        // Update technical fields from metadata
+        width: metadata.width || existingPhoto.width,
+        height: metadata.height || existingPhoto.height,
+        dateTaken: metadata.dateTaken || existingPhoto.dateTaken,
+        dateTakenPrecision: metadata.dateTakenPrecision || existingPhoto.dateTakenPrecision,
+        // Preserve meaningful content
+        tags: meaningfulTags, // Keep only meaningful tags
+        people: existingPhoto.people, // Always preserve people data
+        // Update location only if it was "Unknown Location" before
+        location:
+          existingPhoto.location.title === 'Unknown Location'
+            ? metadata.location || existingPhoto.location
+            : existingPhoto.location,
+        // Always update metadata and modification time
+        metadata: metadata.metadata,
+        dateModified: new Date().toISOString(),
       };
     } else {
       // Create new photo entry
@@ -332,15 +386,38 @@ app.post('/api/photos/extract-all-metadata', async (req, res) => {
         const existingPhotoIndex = photos.findIndex((p) => p.filename === filename);
 
         if (existingPhotoIndex >= 0) {
-          // Update existing photo with extracted metadata (preserve manual edits)
+          // Update existing photo with extracted metadata (preserve meaningful tags and people)
           const existingPhoto = photos[existingPhotoIndex];
+
+          // Preserve existing meaningful tags (not camera metadata)
+          const meaningfulTags = existingPhoto.tags.filter(
+            (tag) =>
+              !tag.includes('iPhone') &&
+              !tag.includes('Apple') &&
+              !tag.includes('Samsung') &&
+              !tag.includes('Canon') &&
+              !tag.includes('Nikon') &&
+              !tag.includes('Software:') &&
+              tag.length > 0,
+          );
+
           photos[existingPhotoIndex] = {
             ...existingPhoto,
-            ...metadata,
-            id: existingPhoto.id,
-            // Preserve manually added tags and people
-            tags: [...new Set([...existingPhoto.tags, ...metadata.tags!])],
-            people: existingPhoto.people, // Keep existing people data
+            // Update technical fields from metadata
+            width: metadata.width || existingPhoto.width,
+            height: metadata.height || existingPhoto.height,
+            dateTaken: metadata.dateTaken || existingPhoto.dateTaken,
+            dateTakenPrecision: metadata.dateTakenPrecision || existingPhoto.dateTakenPrecision,
+            // Preserve meaningful content
+            tags: meaningfulTags, // Keep only meaningful tags
+            people: existingPhoto.people, // Always preserve people data
+            // Update location only if it was "Unknown Location" before
+            location:
+              existingPhoto.location.title === 'Unknown Location'
+                ? metadata.location || existingPhoto.location
+                : existingPhoto.location,
+            // Always update metadata and modification time
+            metadata: metadata.metadata,
             dateModified: new Date().toISOString(),
           };
         } else {
