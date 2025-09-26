@@ -1,7 +1,7 @@
-# Photo Archive Manager (PAM)
+# File Archive Manager (FAM)
 
-**PAM** is a tool for organising and enriching your photo collection.  
-It helps you keep your photos safe, searchable, and easy to browse — while your original files remain untouched.
+**FAM** is a tool for organising and enriching your file collection.  
+It helps you keep your files safe, searchable, and easy to browse — while your original files remain untouched.
 
 ---
 
