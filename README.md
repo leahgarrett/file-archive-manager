@@ -33,8 +33,8 @@ _(more features to be added as the project develops)_
 - [x] Advanced search & filtering ✅
 - [x] Collection statistics & analytics ✅
 - [x] Date precision handling for old photos ✅
-- [ ] Metadata extraction (technical + descriptive)
-- [ ] React-based gallery view with detail editing panel
+- [x] Metadata extraction (technical + descriptive) ✅
+- [x] React-based gallery view with detail editing panel ✅
 - [ ] Bulk tagging and editing
 - [ ] File upload & thumbnail generation
 - [ ] Optional video previews
@@ -377,3 +377,4 @@ curl -X POST http://localhost:3001/api/photos/extract-all-metadata \
 - 2025-09-09: "can we add the meta data to a new structure called meta data and asve all the meta data found?" - Solution: Enhanced metadata extraction with comprehensive EXIF data storage in dedicated metadata structure
 - 2025-09-09: "I do not wish to save the following meta data MediaWhitePoint RedMatrixColumn..." - Solution: Added metadata filtering to exclude color profile and technical fields
 - 2025-09-09: "It looks like the tags in sample.json have been replaced with meta data" - Solution: Fixed metadata extraction logic to preserve meaningful tags instead of replacing them with camera metadata. Removed camera tag generation from extraction function since camera info is now properly stored in metadata.camera structure
+- 2025-09-27: "Can we check if the readme is up to date? We are extracting the meta data but have not updated the roadmap" - Solution: Updated roadmap to mark metadata extraction and React gallery view as complete (✅) since both features are fully implemented and working
